@@ -1,27 +1,60 @@
 import React from 'react';
-import axios from 'axios';
+import styled from 'styled-components';
 
+const Image = styled.img`
+    height: 400px;
+    width: 800px;
+`;
 class Submit extends React.Component {
     constructor(props){
         super(props);
-    }
+        this.state = {
+            data: null,
+            isloaded: false,
+            keyword: null
+        };
+    };
     
-    handleSubmit = (e) => {
-        (async (data) => {
-            var res = await axios.post('http://localhost:3002/data/', JSON.stringify(data));
-        })({ keyword: e.target.keyword.value })
+
+    handleSubmit = async (e) => {
+        e.preventDefault()
+        alert(e.target.keyword.value)
+        await fetch('http://localhost:8000/data/',{ 
+            method: "POST",
+            body:JSON.stringify({ 
+                keyword: e.target.keyword.value,
+            }),
+        })
+            .then((response) => response.json())
+            .then((response) => {
+                this.setState({ data: response.data, isloaded: true });
+            })
     }
 
     render() {
-        return (
+        const { data, isloaded } = this.state;
+        if (isloaded) {
+            return (
             <div>
             <form onSubmit={this.handleSubmit}>
                 <legend>검색 키워드를 입력해주세요!</legend>
                 <input type='text' name='keyword' />
-                <input type="submit" value="등록"/> 
+                <button type="submit"/>
             </form>
-          </div>
-        )
+            <Image src={`data:image/jpeg;base64,${data}`} />
+            </div>
+        )}
+        else {
+            return (
+            <div>
+            <form onSubmit={this.handleSubmit}>
+                <legend>검색 키워드를 입력해주세요!</legend>
+                <input type='text' name='keyword' />
+                <button type="submit">제출</button>
+            </form>
+            </div>
+            )
+        }
     }
 }
 
